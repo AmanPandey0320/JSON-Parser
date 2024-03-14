@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 public class LibraryTest {
     @Test public void someLibraryMethodReturnsTrue() {
         PSON pson = new PSON<MapperClass>();
-        String jsonString = "{\"key\":\"value\"}";
+        String jsonString = "{\"name\":\"Aman1\",\"age\":23}";
         Tokeniser tokeniser = new Tokeniser(jsonString);
         for(Token token: tokeniser.getTokens()){
             System.out.println(token.getTokenType());

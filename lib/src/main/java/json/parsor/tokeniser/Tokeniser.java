@@ -2,7 +2,6 @@ package json.parsor.tokeniser;
 
 import java.util.ArrayList;
 
-import json.parsor.exception.JsonException;
 import json.parsor.exception.TokenException;
 import json.parsor.util.TokenUtil;
 
@@ -138,10 +137,23 @@ public class Tokeniser {
     /**
      *
      *
+     */
+    private boolean matchesAny(char... tokens){
+        for(char token:tokens){
+            if(this.matches(token)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     *
      * @return Token
      */
 
-    public Token parseString(){
+    private Token tokeniseString(){
         StringBuilder stringBuilder = new StringBuilder(100);
         Token token;
         char c;
@@ -163,23 +175,105 @@ public class Tokeniser {
                 if(TokenUtil.getEscape(c) == JsonTokens.HEX_UNICODE){
                     //parse hex string
                 }else if(this.front() == JsonTokens.NULL_CHAR){
-                    throw new TokenException("Unexpected end of file, null pointer observed", this.lineNumber, this.columnNumber);
+                    throw new TokenException(TokenConstants.NULL_POINTER_EXCEPTION, this.lineNumber, this.columnNumber);
                 }else{
                     stringBuilder.append(c);
                 }
             }else if(this.matches(JsonTokens.NEWLINE)){
-                throw new TokenException("Unexpected end of file, invalid token NEWLINE found", this.lineNumber, this.columnNumber);
+                throw new TokenException(TokenConstants.INVALID_NEWLINE_EXCEPTION, this.lineNumber, this.columnNumber);
             }else{
                 if(0x20 <= c && c <= 0x10FFFF){
                     stringBuilder.append(c);
                 }else{
-                    throw new TokenException("Invalid token found", this.lineNumber, this.columnNumber);
+                    throw new TokenException(TokenConstants.INVALID_TOKEN_EXCEPTION, this.lineNumber, this.columnNumber);
                 }
             }
 
             this.next();
         }
     }
+
+    private Token tokeniseNumber() throws TokenException{
+        StringBuilder stringBuilder = new StringBuilder(32);
+        Token token;
+        char c;
+        while(true){
+            if(this.isEnd()){
+                // unexpected end of line -> throw error
+                throw new TokenException(TokenConstants.UNEXPECTED_EOF_EXCEPTION,this.lineNumber, this.columnNumber);
+            }
+
+            // ending statement
+            if(this.matchesAny(JsonTokens.COMMA,JsonTokens.CURLY_BRACKETS_CLOSE,JsonTokens.SQUARE_BRACKET_CLOSE)){
+                token = new Token(TokenType.NUMBER, this.lineNumber, this.columnNumber);
+                token.setTokenValue(stringBuilder.toString());
+                return token;
+            }
+            if(this.matches(JsonTokens.MINUS)){
+                stringBuilder.append(this.front());
+                this.next();
+            }
+
+            if(this.matches(JsonTokens.PLUS)){
+                stringBuilder.append(this.front());
+                this.next();
+            }
+
+            // number before fraction
+            if(TokenUtil.isDigit(this.front())){
+                while(!this.isEnd() && TokenUtil.isDigit(this.front())){
+                    stringBuilder.append(this.front());
+                    this.next();
+                }
+            }
+            if(this.matches(JsonTokens.DOT)){
+                // number after fraction
+                stringBuilder.append(this.front());
+                this.next();
+
+                if(this.isEnd()){
+                    throw new TokenException(
+                            TokenConstants.UNEXPECTED_EOF_EXCEPTION,
+                            this.lineNumber,
+                            this.columnNumber
+                    );
+                }
+
+                if(!TokenUtil.isDigit(this.front())){
+                    throw new TokenException(
+                            TokenConstants.UNEXPCTED_CHAR_EXCEPTION(this.front()),
+                            this.lineNumber,
+                            this.columnNumber
+                    );
+                }
+
+            }
+
+            if(!this.isEnd() && (this.matchesAny(JsonTokens.CAPITAL_EXPONENT_E,JsonTokens.SMALL_EXPONENT_E))){
+                //exponent
+                stringBuilder.append(this.front());
+                this.next();
+
+                if(this.isEnd()){
+                    throw new TokenException(
+                            TokenConstants.UNEXPECTED_EOF_EXCEPTION,
+                            this.lineNumber,
+                            this.columnNumber
+                    );
+                }
+
+                if(!TokenUtil.isDigit(this.front())){
+                    throw new TokenException(
+                            TokenConstants.UNEXPCTED_CHAR_EXCEPTION(this.front()),
+                            this.lineNumber,
+                            this.columnNumber
+                    );
+                }
+            }
+        }
+    }
+
+
 
 
     /**
@@ -194,30 +288,21 @@ public class Tokeniser {
         while(!this.isEnd()){
             token = null;
             if(this.matches(JsonTokens.CURLY_BRACKETS_OPEN)){
-                token = new Token(TokenType.CURLY_BRACKET_OPEN, this.lineNumber, this.columnNumber);
+                token = new Token(TokenType.CURLY_BRACKET_OPEN, JsonTokens.CURLY_BRACKETS_OPEN, this.lineNumber, this.columnNumber);
             }else if(this.matches(JsonTokens.CURLY_BRACKETS_CLOSE)){
-                token = new Token(TokenType.CURLY_BRACKET_CLOSE, this.lineNumber, this.columnNumber);
+                token = new Token(TokenType.CURLY_BRACKET_CLOSE,JsonTokens.CURLY_BRACKETS_CLOSE, this.lineNumber, this.columnNumber);
             }else if(this.matches(JsonTokens.SQUARE_BRACKET_OPEN)){
-                token = new Token(TokenType.SQUARE_BRACKET_OPEN, this.lineNumber, this.columnNumber);
+                token = new Token(TokenType.SQUARE_BRACKET_OPEN,JsonTokens.SQUARE_BRACKET_OPEN, this.lineNumber, this.columnNumber);
             }else if(this.matches(JsonTokens.SQUARE_BRACKET_CLOSE)){
-                token = new Token(TokenType.SQUARE_BRACKET_CLOSE, this.lineNumber, this.columnNumber);
+                token = new Token(TokenType.SQUARE_BRACKET_CLOSE,JsonTokens.SQUARE_BRACKET_CLOSE, this.lineNumber, this.columnNumber);
             }else if(this.matches(JsonTokens.COMMA)){
-                token = new Token(TokenType.COMMA, this.lineNumber, this.columnNumber);
+                token = new Token(TokenType.COMMA,JsonTokens.COMMA, this.lineNumber, this.columnNumber);
             }else if(this.matches(JsonTokens.COLON)){
-                token = new Token(TokenType.COLON, this.lineNumber, this.columnNumber);
+                token = new Token(TokenType.COLON,JsonTokens.COLON, this.lineNumber, this.columnNumber);
             }else{
-                /*
-                * here it is:
-                * string
-                * +ve integer
-                * -ve integer
-                * exp
-                *
-                */
-
                 char ch = this.front();
                 if(ch == JsonTokens.NULL_CHAR){
-                    throw new TokenException("Unexcepted end of file",this.lineNumber, this.columnNumber);
+                    throw new TokenException(TokenConstants.UNEXPECTED_EOF_EXCEPTION,this.lineNumber, this.columnNumber);
                 }
 
                 if(TokenUtil.isWhiteSpace(ch)){
@@ -227,14 +312,14 @@ public class Tokeniser {
                 }else if(ch == JsonTokens.DOUBLE_QUOTE){
                     //parse string token
                     this.next();
-                    token = this.parseString();
-                }else if(TokenUtil.isDigit(ch) || ch == JsonTokens.MINUS){
+                    token = this.tokeniseString();
+                }else if(TokenUtil.isDigit(ch) || this.matches(JsonTokens.MINUS) || this.matches(JsonTokens.PLUS) ){
                     // parse number token
-                    this.next();
+                    token = this.tokeniseNumber();
                 }else if(TokenUtil.isLetter(ch)){
-                    throw new TokenException("Invalid string found", this.lineNumber, this.columnNumber);
+                    throw new TokenException(TokenConstants.INVALID_STRING_EXCEPTION, this.lineNumber, this.columnNumber);
                 }else{
-                    throw new TokenException("Unexpected token found\"" + ch + "\"",this.lineNumber,this.columnNumber);
+                    throw new TokenException(TokenConstants.UNEXPCTED_CHAR_EXCEPTION(ch),this.lineNumber,this.columnNumber);
                 }
             }
 
