@@ -46,7 +46,7 @@ public class Token {
         this.line = line;
     }
 
-    public Token(TokenType tokenType, Object val, int column, int line) {
+    public Token(TokenType tokenType, Object val, int line, int column) {
         this.tokenType = tokenType;
         this.tokenValue = val;
         this.column = column;

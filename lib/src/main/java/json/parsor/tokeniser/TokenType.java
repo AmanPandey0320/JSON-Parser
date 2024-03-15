@@ -10,8 +10,7 @@ public enum TokenType {
     DOUBLE_QUOTE,
     STRING,
     NUMBER,
-    TRUE,
-    FALSE,
-    NONE,
+    BOOL,
+    NULL,
     EOF
 }

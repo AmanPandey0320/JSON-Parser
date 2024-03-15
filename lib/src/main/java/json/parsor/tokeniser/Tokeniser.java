@@ -273,6 +273,42 @@ public class Tokeniser {
         }
     }
 
+    private Token tokeniseBool() throws TokenException{
+        StringBuilder stringBuilder = new StringBuilder(8);
+
+        while(!this.isEnd()){
+            if(TokenUtil.isLetter(this.front())){
+                stringBuilder.append(this.front());
+                this.next();
+            }else if(this.matches(JsonTokens.COMMA)){
+                //word ends here
+                break;
+            }else{
+                throw new TokenException(
+                        TokenConstants.UNEXPCTED_CHAR_EXCEPTION(this.front()),
+                        this.lineNumber,
+                        this.columnNumber
+                );
+            }
+        }
+
+        String value = stringBuilder.toString().toLowerCase();
+
+        if(value.equals("null")){
+            return new Token(TokenType.NULL,null,this.lineNumber, this.columnNumber);
+        }else if(value.equals("true")){
+            return new Token(TokenType.BOOL,true,this.lineNumber,this.columnNumber);
+        }else if(value.equals("false")){
+            return new Token(TokenType.BOOL,false,this.lineNumber,this.columnNumber);
+        }else{
+            throw new TokenException(
+                    TokenConstants.INVALID_TOKEN_EXCEPTION,
+                    this.lineNumber,
+                    this.columnNumber
+            );
+        }
+    }
+
 
 
 
@@ -317,7 +353,7 @@ public class Tokeniser {
                     // parse number token
                     token = this.tokeniseNumber();
                 }else if(TokenUtil.isLetter(ch)){
-                    throw new TokenException(TokenConstants.INVALID_STRING_EXCEPTION, this.lineNumber, this.columnNumber);
+                    token = this.tokeniseBool();
                 }else{
                     throw new TokenException(TokenConstants.UNEXPCTED_CHAR_EXCEPTION(ch),this.lineNumber,this.columnNumber);
                 }
