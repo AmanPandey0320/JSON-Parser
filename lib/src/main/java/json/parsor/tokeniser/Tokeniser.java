@@ -163,7 +163,6 @@ public class Tokeniser {
 
         while(true){
             c = this.front();
-
             if(TokenUtil.isEndofString(c)){
                 token = new Token(TokenType.STRING,this.lineNumber,this.columnNumber);
                 token.setTokenValue(stringBuilder.toString());
@@ -174,6 +173,13 @@ public class Tokeniser {
                 c = this.front();
                 if(TokenUtil.getEscape(c) == JsonTokens.HEX_UNICODE){
                     //parse hex string
+                    this.next();
+                    Token hexToken = this.tokeniseHex();
+                    String hexStr = hexToken.getTokenValue().toString();
+                    int strLen = hexStr.length();
+                    for(int i = 0; i<strLen;i++){
+                        stringBuilder.append(hexStr.charAt(i));
+                    }
                 }else if(this.front() == JsonTokens.NULL_CHAR){
                     throw new TokenException(TokenConstants.NULL_POINTER_EXCEPTION, this.lineNumber, this.columnNumber);
                 }else{
@@ -192,6 +198,32 @@ public class Tokeniser {
             this.next();
         }
     }
+
+    private Token tokeniseHex() throws TokenException{
+        StringBuilder stringBuilder = new StringBuilder();
+        while(stringBuilder.length() < 4){
+            if(this.isEnd()){
+                throw new TokenException(TokenConstants.UNEXPECTED_EOF_EXCEPTION,this.lineNumber, this.columnNumber);
+            }else if(TokenUtil.isHex(this.front())){
+                stringBuilder.append(this.front());
+
+                // to handle multiple movements of pointer in side tokenize string function
+                if(stringBuilder.length() < 3)
+                    this.next();
+            }else{
+                throw new TokenException(TokenConstants.UNEXPCTED_CHAR_EXCEPTION(this.front()),this.lineNumber, this.columnNumber);
+            }
+        }
+        int hexNum = Integer.parseInt(new String(stringBuilder.toString()), 16);
+        String hexStr = String.valueOf(Character.toChars(hexNum));
+        return new Token(TokenType.STRING,hexStr,this.lineNumber, this.columnNumber);
+    }
+
+    /**
+     *
+     * @return
+     * @throws TokenException
+     */
 
     private Token tokeniseNumber() throws TokenException{
         StringBuilder stringBuilder = new StringBuilder(32);
