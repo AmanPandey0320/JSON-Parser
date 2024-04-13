@@ -7,8 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-public @interface JsonProperty {
-    String name() default "";
-    Type type() default Type.STRING;
+@Target(ElementType.TYPE)
+public @interface JsonClass {
 }

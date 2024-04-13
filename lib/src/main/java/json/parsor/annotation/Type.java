@@ -1,13 +1,10 @@
 package json.parsor.annotation;
 
-public class Type {
-    public enum Property{
-        STRING,
-        NUMBER,
-        TRUE,
-        FALSE,
-        ARRAY,
-        OBJECT,
-        NONE
-    }
+public enum Type {
+    STRING,
+    NUMBER,
+    ARRAY,
+    BOOLEAN,
+    OBJECT,
+    NONE
 }
