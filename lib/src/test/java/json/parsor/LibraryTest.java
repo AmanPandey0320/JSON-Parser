@@ -40,7 +40,7 @@ public class LibraryTest {
 
     @Test public void builderTest() {
         PSON pson = new PSON<Person>();
-        String jsonString = "{\"name\":\"AmanKrPandey\"}";
+        String jsonString = "{\"name\":\"Aman Kr Pandey\"}";
 
         System.out.println("\n\n---------------- TEST CASE 3 --------------------\n\n");
 

@@ -28,6 +28,7 @@ public class ObjectBuilder {
     public Object build(){
         Class<?> clazz = object.getClass();
         HashMap<String,String> fieldToKey;
+        TokenProcessor processor = new TokenProcessor(tokens);
 
         //check for annotation
         if(!clazz.isAnnotationPresent(JsonClass.class)){
@@ -40,24 +41,19 @@ public class ObjectBuilder {
             System.out.println("field: "+entry.getKey()+", key: "+entry.getValue());
         }
 
+        // init
+        processor.init();
+
+        System.out.println("\n-------------------------\n");
+
+        for(Map.Entry<String,Token> entry:processor.getObjectHashMap().entrySet()){
+            System.out.println("key: "+entry.getKey()+" value: "+entry.getValue().getTokenValue().toString());
+        }
+
         return object;
     }
 
-    private void parseTokens(){
-        Token currToken;
-        Stack<TokenType> tokenStack = new Stack<>();
-        while(tokenIdx < totalTokens){
-            currToken = tokens.get(tokenIdx);
-            if(currToken.getTokenType() == TokenType.CURLY_BRACKET_OPEN){
-                //find key
-                tokenStack.push(TokenType.CURLY_BRACKET_OPEN);
-            }else if(currToken.getTokenType() == TokenType.COMMA){
-                /*
-                * case 1: peak in tokenStack is [ -> array, go to next token
-                * case 2, peak is { -> decode key
-                * */
-            }
-        }
-    }
+
+
 
 }

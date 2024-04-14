@@ -7,6 +7,6 @@ import json.parsor.annotation.Type;
 @JsonClass
 public class Person {
 
-    @JsonProperty(type = Type.STRING,name = "naam")
+    @JsonProperty(type = Type.STRING,name = "name")
     public String name;
 }
