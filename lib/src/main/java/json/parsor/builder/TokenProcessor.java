@@ -122,7 +122,6 @@ public class TokenProcessor {
 
     private void processTokens(String key) throws ProcessorException{
         Token token = this.getCurrToken();
-        System.out.println(key+" -> "+token.toString());
         switch (token.getTokenType()){
             case CURLY_BRACKET_OPEN :
                 this.processObject(key);
