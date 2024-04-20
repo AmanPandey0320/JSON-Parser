@@ -312,7 +312,7 @@ public class Tokeniser {
             if(TokenUtil.isLetter(this.front())){
                 stringBuilder.append(this.front());
                 this.next();
-            }else if(this.matches(JsonTokens.COMMA)){
+            }else if(this.matches(JsonTokens.COMMA) || this.matches(JsonTokens.CURLY_BRACKETS_CLOSE) || this.matches(JsonTokens.SQUARE_BRACKET_CLOSE)){
                 //word ends here
                 break;
             }else{
@@ -341,6 +341,20 @@ public class Tokeniser {
         }
     }
 
+    private void avoidTokenSlipping(){
+        Token token = null;
+        if(this.matches(JsonTokens.CURLY_BRACKETS_CLOSE)){
+            token = new Token(TokenType.CURLY_BRACKET_CLOSE,JsonTokens.CURLY_BRACKETS_CLOSE, this.lineNumber, this.columnNumber);
+        }else if(this.matches(JsonTokens.SQUARE_BRACKET_CLOSE)){
+            token = new Token(TokenType.SQUARE_BRACKET_CLOSE,JsonTokens.SQUARE_BRACKET_CLOSE, this.lineNumber, this.columnNumber);
+        }else if(this.matches(JsonTokens.COMMA)){
+            token = new Token(TokenType.COMMA,JsonTokens.COMMA, this.lineNumber, this.columnNumber);
+        }
+
+        if(token != null) this.tokens.add(token);
+
+    }
+
 
 
 
@@ -352,9 +366,11 @@ public class Tokeniser {
     private void tokenise(){
 
         Token token = null;
+        boolean isSlipCheckEnabled = false;
 
         while(!this.isEnd()){
             token = null;
+            isSlipCheckEnabled = false;
             if(this.matches(JsonTokens.CURLY_BRACKETS_OPEN)){
                 token = new Token(TokenType.CURLY_BRACKET_OPEN, JsonTokens.CURLY_BRACKETS_OPEN, this.lineNumber, this.columnNumber);
             }else if(this.matches(JsonTokens.CURLY_BRACKETS_CLOSE)){
@@ -384,14 +400,21 @@ public class Tokeniser {
                 }else if(TokenUtil.isDigit(ch) || this.matches(JsonTokens.MINUS) || this.matches(JsonTokens.PLUS) ){
                     // parse number token
                     token = this.tokeniseNumber();
+                    isSlipCheckEnabled = true;
                 }else if(TokenUtil.isLetter(ch)){
                     token = this.tokeniseBool();
+                    isSlipCheckEnabled = true;
                 }else{
                     throw new TokenException(TokenConstants.UNEXPCTED_CHAR_EXCEPTION(ch),this.lineNumber,this.columnNumber);
                 }
             }
 
             if(token != null) this.tokens.add(token);
+
+            if (isSlipCheckEnabled){
+                this.avoidTokenSlipping();
+            }
+
             this.next();
         }
 

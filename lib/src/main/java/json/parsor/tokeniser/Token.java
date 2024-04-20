@@ -52,4 +52,9 @@ public class Token {
         this.column = column;
         this.line = line;
     }
+
+    @Override
+    public String toString() {
+        return "Token value: "+this.tokenValue.toString()+", token type: "+this.tokenType.toString();
+    }
 }

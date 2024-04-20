@@ -13,7 +13,6 @@ import java.util.*;
 public class TokenProcessor {
     private HashMap<String,Token> objectHashMap;
     private ArrayList<Token> tokens;
-    private Stack<Token> bracketStack;
     private LinkedList<String> keyStack;
     private int currToken;
     private int numberOfTokens;
@@ -21,7 +20,6 @@ public class TokenProcessor {
     public TokenProcessor(ArrayList<Token> tokens) {
         this.tokens = tokens;
         this.objectHashMap = new HashMap<>();
-        this.bracketStack = new Stack<>();
         this.keyStack = new LinkedList<>();
         this.currToken = 0;
         this.numberOfTokens = tokens.size();
@@ -35,9 +33,9 @@ public class TokenProcessor {
         return this.currToken >= this.numberOfTokens;
     }
 
-    private void nextToken(){
+    private Token nextToken(){
         this.currToken = this.currToken+1;
-        return;
+        return this.getCurrToken();
     }
 
     private Token getCurrToken(){
@@ -57,106 +55,93 @@ public class TokenProcessor {
         return false;
     }
 
-    private String generateConsolidateKey(){
-        int n = this.keyStack.size();
-        String key = "";
-        String curr;
-        while(n > 0){
-            curr = this.keyStack.getFirst();
-            key = key+curr;
-            this.keyStack.removeFirst();
-            this.keyStack.addLast(curr);
-            n--;
+    private void processArray(String key) throws ProcessorException{
+        Token token = this.nextToken();
+
+        if(this.matchToken(token,TokenType.SQUARE_BRACKET_CLOSE)){
+            return;
         }
-        return key;
+
+        int idx = -1;
+
+        while(true){
+            idx++;
+            token = this.getCurrToken();
+            String currKey = !key.isEmpty() ? key+'.'+"@["+String.valueOf(idx)+']' : "@["+String.valueOf(idx)+']';
+
+            this.processTokens(currKey);
+            token = this.nextToken();
+            if(!this.matchToken(token,TokenType.SQUARE_BRACKET_CLOSE)){
+                if(!this.matchToken(token,TokenType.COMMA)){
+                    throw new ProcessorException(token,"Expected a comma or closing square bracket");
+                }else{
+                    this.nextToken();
+                }
+            }else{
+                return;
+            }
+
+        }
+
     }
 
-    private void parseObject() throws ProcessorException {
-        // move pointer from {
-        this.nextToken();
+    private void processObject(String key) throws  ProcessorException{
+        Token token = this.nextToken();
 
-        Token token;
+        if(this.matchToken(token,TokenType.CURLY_BRACKET_CLOSE)){
+            return;
+        }
 
         while(true){
             token = this.getCurrToken();
 
-            if(this.matchToken(token,TokenType.CURLY_BRACKET_CLOSE)){
-                return;
+            if(!this.matchToken(token, TokenType.STRING)){
+                throw new ProcessorException(token,"Expected a string");
             }
+            String currKey = !key.isEmpty() ? key+'.'+token.getTokenValue().toString() : token.getTokenValue().toString();
+            token = this.nextToken();
 
-            if(this.matchToken(token,TokenType.STRING)){
-                System.out.println("here------------------");
-                this.parseKeyValue();
+            if(!this.matchToken(token, TokenType.COLON)){
+                throw new ProcessorException(token,"Expected a colon");
+            }
+            this.nextToken();
+            this.processTokens(currKey);
+            token = this.nextToken();
+
+            if(!this.matchToken(token,TokenType.CURLY_BRACKET_CLOSE)){
+                if(!this.matchToken(token,TokenType.COMMA)){
+                    throw new ProcessorException(token,"Expected a comma or closing curly bracket");
+                }else{
+                    this.nextToken();
+                }
             }else{
-                throw new ProcessorException(token,"Expected string");
+                return;
             }
         }
     }
 
-    private void parseArray(){
-        // skip the first [
-
-    }
-
-    private void parseKeyValue(){
+    private void processTokens(String key) throws ProcessorException{
         Token token = this.getCurrToken();
-        // key comes
-        String key = token.getTokenValue().toString();
-        this.keyStack.add(key);
-
-        // colon comes next
-        this.nextToken();
-        token = this.getCurrToken();
-        if(this.matchToken(token,TokenType.COLON)){
-
-            // value comes
-            this.nextToken();
-            token = this.getCurrToken();
-            objectHashMap.put(key,token);
-
-            // comma comes next
-            this.nextToken();
-            token = this.getCurrToken();
-
-            if(this.matchToken(token,TokenType.CURLY_BRACKET_CLOSE)){
-                return;
-            }
-
-            if(this.matchToken(token,TokenType.COMMA)){
-                this.nextToken();
-            }else{
-                throw new ProcessorException(token,"Expected ,");
-            }
-        }else{
-            throw new ProcessorException(token,"Expected :");
+        System.out.println(key+" -> "+token.toString());
+        switch (token.getTokenType()){
+            case CURLY_BRACKET_OPEN :
+                this.processObject(key);
+                break;
+            case SQUARE_BRACKET_OPEN:
+                this.processArray(key);
+                break;
+            case NUMBER, STRING, BOOL:
+                this.objectHashMap.put(key,token);
+                break;
+            case NULL:
+                break;
         }
     }
+
+
 
     public void init() throws ProcessorException{
-        Token token;
-
-        while(true){
-            token = this.getCurrToken();
-
-            if(token == null){
-                throw new ProcessorException(token,"Expected a valid token");
-            }
-
-            if(this.matchToken(token,TokenType.EOF)){
-                break;
-            }
-
-            if(this.matchToken(token,TokenType.CURLY_BRACKET_OPEN)){
-                this.bracketStack.push(token);
-                this.parseObject();
-            } else if (this.matchToken(token,TokenType.STRING)) {
-                this.parseKeyValue();
-            }else{
-                throw new ProcessorException(token,"Expected a valid token");
-            }
-
-            this.nextToken();
-        }
+        this.processTokens("");
     }
 
 }

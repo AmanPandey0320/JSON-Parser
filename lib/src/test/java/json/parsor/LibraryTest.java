@@ -40,16 +40,10 @@ public class LibraryTest {
 
     @Test public void builderTest() {
         PSON pson = new PSON<Person>();
-        String jsonString = "{\"name\":\"Aman Kr Pandey\"}";
-
+        String jsonString = "{\"browsers\":{\"firefox\":{\"name\":\"Firefox\",\"pref_url\":\"about:config\",\"releases\":[{\"release_date\":\"2004-11-09\",\"status\":\"retired\",\"engine\":\"Gecko\",\"engine_version\":\"1.7\",\"tags\":[\"json\",\"parser\"],\"isGa\":1}]}}}";
         System.out.println("\n\n---------------- TEST CASE 3 --------------------\n\n");
 
         Tokeniser tokeniser = new Tokeniser(jsonString);
-        for(Token token: tokeniser.getTokens()){
-            System.out.println(token.getTokenType());
-            System.out.println(token.getTokenValue());
-            System.out.println("----------------------------------------------------");
-        }
 
         ObjectBuilder objectBuilder = new ObjectBuilder(tokeniser.getTokens(),new Person());
         Person person = (Person) objectBuilder.build();
