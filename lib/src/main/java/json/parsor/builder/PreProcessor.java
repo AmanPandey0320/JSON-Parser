@@ -4,6 +4,7 @@ import json.parsor.annotation.JsonProperty;
 import json.parsor.annotation.Type;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -16,8 +17,8 @@ public class PreProcessor {
     *
     * @description
     * */
-    public static HashMap<String, String> mapFieldToKey(Object object){
-        HashMap<String,String> hashMap = new HashMap<>();
+    public static HashMap<String, Field> mapFieldToKey(Object object){
+        HashMap<String,Field> hashMap = new HashMap<>();
 
         if(Objects.isNull(object)){
             throw new IllegalArgumentException("Expected an object, but found NULL");
@@ -28,7 +29,7 @@ public class PreProcessor {
         for(Field field:clazz.getDeclaredFields()){
             field.setAccessible(true);
             if(field.isAnnotationPresent(JsonProperty.class)){
-                hashMap.put(field.getName(),getKey(field));
+                hashMap.put(getKey(field),field);
             }
         }
 
@@ -55,5 +56,33 @@ public class PreProcessor {
     private static Type getType(Field field){
         Type type = field.getAnnotation(JsonProperty.class).type();
         return type;
+    }
+
+    /*
+    *
+    *
+    *
+    * */
+    public static HashMap<String, String> mapFieldToSetter(Object object){
+        HashMap<String,String> hashMap = new HashMap<>();
+
+        if(Objects.isNull(object)){
+            throw new IllegalArgumentException("Expected an object, but found NULL");
+        }
+
+        Class<?> clazz = object.getClass();
+
+        for(Method method:clazz.getDeclaredMethods()){
+            String methodName = method.getName();
+            if(methodName.length() > 5){
+                String methodType = methodName.substring(0,3);
+                String methodField = (char)(methodName.charAt(3)+32) + methodName.substring(4);
+                if(methodType.equals("set")){
+                    hashMap.put(methodField,methodName);
+                }
+            }
+        }
+
+        return hashMap;
     }
 }

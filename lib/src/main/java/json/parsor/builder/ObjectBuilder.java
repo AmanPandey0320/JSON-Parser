@@ -1,33 +1,36 @@
 package json.parsor.builder;
 
 import json.parsor.annotation.JsonClass;
+import json.parsor.annotation.JsonProperty;
+import json.parsor.annotation.Type;
 import json.parsor.exception.AnnotationException;
 import json.parsor.tokeniser.Token;
-import json.parsor.tokeniser.TokenType;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
-import java.util.function.Supplier;
 
 public class ObjectBuilder {
 
     private ArrayList<Token> tokens;
     private Object object;
-    private int tokenIdx;
-    private int totalTokens;
+    HashMap<String, Field> keyToField;
+    HashMap<String,String> fieldToSetter;
     
     public ObjectBuilder(ArrayList<Token> tokens,Object object){
         this.tokens = tokens;
         this.object = object;
-        this.tokenIdx = 0;
-        this.totalTokens = tokens.size();
+        this.keyToField = PreProcessor.mapFieldToKey(object);
+        this.fieldToSetter = PreProcessor.mapFieldToSetter(object);
     }
 
-    public Object build(){
+    public Object build() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Class<?> clazz = object.getClass();
-        HashMap<String,String> fieldToKey;
+
+        HashMap<String,Token> keyTokenMap;
         TokenProcessor processor = new TokenProcessor(tokens);
 
         //check for annotation
@@ -35,19 +38,40 @@ public class ObjectBuilder {
             throw new AnnotationException(clazz.getSimpleName());
         }
 
-        fieldToKey = PreProcessor.mapFieldToKey(object);
-
-        for(Map.Entry<String,String> entry:fieldToKey.entrySet()){
-            System.out.println("field: "+entry.getKey()+", key: "+entry.getValue());
-        }
-
         // init
         processor.init();
+        keyTokenMap = processor.getObjectHashMap();
 
-        System.out.println("\n-------------------------\n");
+        for(Map.Entry<String,Token> entry:keyTokenMap.entrySet()){
+            String key = entry.getKey();
+            if(this.keyToField.containsKey(key)){
+                Field field = this.keyToField.get(key);
+                if(this.fieldToSetter.containsKey(field.getName())){
+                    String setterMethodName = this.fieldToSetter.get(field.getName());
+                    Method method = null;
+                    switch (field.getAnnotation(JsonProperty.class).type()){
+                        case STRING:
+                            method = clazz.getMethod(setterMethodName,String.class);
+                            method.setAccessible(true);
+                            method.invoke(object,entry.getValue().getTokenValue().toString());
+                            break;
+                        case NUMBER:
+                            method = clazz.getMethod(setterMethodName,int.class);
+                            method.setAccessible(true);
+                            method.invoke(object,Integer.getInteger(entry.getValue().getTokenValue().toString()));
+                            break;
+                        case OBJECT:
+                            break;
+                        case ARRAY:
+                            break;
+                        case BOOLEAN:
+                            break;
+                        default:
+                            break;
 
-        for(Map.Entry<String,Token> entry:processor.getObjectHashMap().entrySet()){
-            System.out.println("key: "+entry.getKey()+" value: "+entry.getValue().getTokenValue().toString());
+                    }
+                }
+            }
         }
 
         return object;
