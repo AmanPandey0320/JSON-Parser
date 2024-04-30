@@ -1,5 +1,6 @@
 package json.parsor;
 
+import json.parsor.annotation.JsonArray;
 import json.parsor.annotation.JsonClass;
 import json.parsor.annotation.JsonProperty;
 import json.parsor.annotation.Type;
@@ -25,5 +26,6 @@ public class Release {
     private boolean isGa;
 
     @JsonProperty(type = Type.ARRAY)
+    @JsonArray(type = String.class)
     private ArrayList<String> tags;
 }

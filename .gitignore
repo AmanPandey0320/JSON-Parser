@@ -9,3 +9,5 @@ build
 gradle
 lib/bin
 dummy.json
+dummy.txt
+

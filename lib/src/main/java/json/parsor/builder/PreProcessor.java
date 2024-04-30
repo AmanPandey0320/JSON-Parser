@@ -17,8 +17,8 @@ public class PreProcessor {
     *
     * @description
     * */
-    public static HashMap<String, Field> mapFieldToKey(Object object){
-        HashMap<String,Field> hashMap = new HashMap<>();
+    public static HashMap<Field, String> mapFieldToKey(Object object){
+        HashMap<Field,String> hashMap = new HashMap<>();
 
         if(Objects.isNull(object)){
             throw new IllegalArgumentException("Expected an object, but found NULL");
@@ -29,7 +29,7 @@ public class PreProcessor {
         for(Field field:clazz.getDeclaredFields()){
             field.setAccessible(true);
             if(field.isAnnotationPresent(JsonProperty.class)){
-                hashMap.put(getKey(field),field);
+                hashMap.put(field,getKey(field));
             }
         }
 
@@ -74,7 +74,7 @@ public class PreProcessor {
 
         for(Method method:clazz.getDeclaredMethods()){
             String methodName = method.getName();
-            if(methodName.length() > 5){
+            if(methodName.length() > 3){
                 String methodType = methodName.substring(0,3);
                 String methodField = (char)(methodName.charAt(3)+32) + methodName.substring(4);
                 if(methodType.equals("set")){
