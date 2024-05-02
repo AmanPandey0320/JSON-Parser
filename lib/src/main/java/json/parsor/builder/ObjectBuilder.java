@@ -1,9 +1,7 @@
 package json.parsor.builder;
 
-import json.parsor.annotation.JsonArray;
 import json.parsor.annotation.JsonClass;
 import json.parsor.annotation.JsonProperty;
-import json.parsor.annotation.Type;
 import json.parsor.exception.AnnotationException;
 import json.parsor.exception.BuilderException;
 import json.parsor.tokeniser.Token;
@@ -53,11 +51,11 @@ public class ObjectBuilder {
             HashMap<String,Token> keyTokenMap
     ) throws BuilderException {
         ArrayList<Object> arr = new ArrayList<>();
-        if(!field.isAnnotationPresent(JsonArray.class)){
-            throw new BuilderException("Required annotation of type JsonArray");
+        if(!field.isAnnotationPresent(JsonProperty.class)){
+            throw new BuilderException("Required annotation of type JsonProperty");
         }
 
-        Class<?> clazz = field.getAnnotation(JsonArray.class).type();
+        Class<?> clazz = field.getAnnotation(JsonProperty.class).nest();
 
         if (clazz.equals(String.class) || clazz.equals(Integer.class) || clazz.equals(Boolean.class)) {
             int idx = 0;
@@ -80,19 +78,22 @@ public class ObjectBuilder {
     }
 
     private Object buildObject(
+            String parKey,
             Class<?> clazz,
-            HashMap<String,Token> keyTokenMap,
-            HashMap<Field,String> fieldTokey,
-            HashMap<String,String> fieldToSetter
+            HashMap<String,Token> keyTokenMap
     ) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
 
         Constructor<?> constructor = clazz.getConstructor();
         Object obj = constructor.newInstance(new Object[]{});
+        HashMap<String,String> fieldToSetter = PreProcessor.mapFieldToSetter(obj);
+        HashMap<Field,String> fieldTokey = PreProcessor.mapFieldToKey(obj);
 
         for(Map.Entry<Field,String> entry:fieldTokey.entrySet()){
             Field field = entry.getKey();
             String fieldKey = entry.getValue();
-            Token fieldValue = keyTokenMap.get(fieldKey);
+            Token fieldValue = keyTokenMap.get(parKey+fieldKey);
+
+
 
 
 
@@ -109,7 +110,15 @@ public class ObjectBuilder {
 
             }else if(fieldType == FieldType.Object){
                 //destructure object
-//                method = clazz.getMethod(setterMethodName,ArrayList.class);
+                Class<?> nestClazz = field.getAnnotation(JsonProperty.class).nest();
+                method = clazz.getMethod(setterMethodName,nestClazz);
+                method.setAccessible(true);
+                Object nestObj = this.buildObject(
+                        parKey+fieldKey+".",
+                        nestClazz,
+                        keyTokenMap
+                );
+                method.invoke(obj,nestObj);
             }else if(fieldType == FieldType.Number){
                 // destructure number
                 method = clazz.getMethod(setterMethodName,Integer.class);
@@ -119,7 +128,7 @@ public class ObjectBuilder {
                 // boolean
                 method = clazz.getMethod(setterMethodName,Boolean.class);
                 method.setAccessible(true);
-                method.invoke(obj,Boolean.getBoolean(fieldValue.getTokenValue().toString()));
+                method.invoke(obj,fieldValue.getTokenValue().toString().equals("true"));
             }else{
                 // string
                 method = clazz.getMethod(setterMethodName,String.class);
@@ -157,12 +166,10 @@ public class ObjectBuilder {
         // init
         processor.init();
         keyTokenMap = processor.getObjectHashMap();
-        fieldToken = PreProcessor.mapFieldToKey(object);
-        fieldToSetter = PreProcessor.mapFieldToSetter(object);
 
 
 
-        return this.buildObject(clazz,keyTokenMap,fieldToken,fieldToSetter);
+        return this.buildObject("",clazz,keyTokenMap);
     }
 
 

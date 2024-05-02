@@ -11,4 +11,5 @@ import java.lang.annotation.Target;
 public @interface JsonProperty {
     String name() default "";
     Type type() default Type.STRING;
+    Class<?> nest() default String.class;
 }

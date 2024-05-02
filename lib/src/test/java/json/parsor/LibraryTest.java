@@ -23,6 +23,8 @@ public class LibraryTest {
         ObjectBuilder objectBuilder = new ObjectBuilder(tokeniser.getTokens(),new Person());
         Person person = (Person) objectBuilder.build();
 
+        System.out.println(person);
+
     }
 
 //    @Test public void hexTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {

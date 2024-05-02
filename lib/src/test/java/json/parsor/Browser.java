@@ -1,6 +1,5 @@
 package json.parsor;
 
-import json.parsor.annotation.JsonArray;
 import json.parsor.annotation.JsonClass;
 import json.parsor.annotation.JsonProperty;
 import json.parsor.annotation.Type;
@@ -16,8 +15,7 @@ public class Browser {
     @JsonProperty(name = "browsers.firefox.pref_url")
     private String browserPrefUrl;
 
-    @JsonProperty(type = Type.ARRAY)
-    @JsonArray(type = Release.class)
+    @JsonProperty(type = Type.ARRAY, nest = Release.class)
     private ArrayList<Release> releases;
 
     public String getBrowserName() {

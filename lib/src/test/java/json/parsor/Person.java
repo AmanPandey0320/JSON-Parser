@@ -1,6 +1,5 @@
 package json.parsor;
 
-import json.parsor.annotation.JsonArray;
 import json.parsor.annotation.JsonClass;
 import json.parsor.annotation.JsonProperty;
 import json.parsor.annotation.Type;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 public class Person {
 
     @JsonProperty(type = Type.STRING,name = "name")
-    private String name;
+    private String pname;
 
     @JsonProperty(type = Type.NUMBER)
     private Integer age;
@@ -20,8 +19,10 @@ public class Person {
     private Boolean isEducated;
 
     @JsonProperty(type = Type.ARRAY)
-    @JsonArray(type = String.class)
     private ArrayList<String> hobbies;
+
+    @JsonProperty(type = Type.OBJECT, nest = Education.class, name = "UG")
+    private Education edu;
 
     public ArrayList<String> getHobbies() {
         return hobbies;
@@ -31,12 +32,20 @@ public class Person {
         this.hobbies = hobbies;
     }
 
-    public String getName() {
-        return name;
+    public String getPname() {
+        return pname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPname(String name) {
+        this.pname = name;
+    }
+
+    public Education getEdu() {
+        return edu;
+    }
+
+    public void setEdu(Education edu) {
+        this.edu = edu;
     }
 
     public Integer getAge() {
