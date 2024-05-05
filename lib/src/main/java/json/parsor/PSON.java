@@ -3,14 +3,18 @@
  */
 package json.parsor;
 
+import json.parsor.builder.ObjectBuilder;
 import json.parsor.tokeniser.Token;
 import json.parsor.tokeniser.Tokeniser;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class PSON<MapperClass> {
 
     private String jsonString;
 
-    public void PSON(String jsonString){
+
+    public PSON(String jsonString){
         this.jsonString = jsonString;
 
     }
@@ -18,9 +22,13 @@ public class PSON<MapperClass> {
         return "";
     }
 
-    public MapperClass parse(String s){
-        MapperClass m  = null;
+    @SuppressWarnings("unchecked")
+    public Object parseIntoObject(MapperClass mapperObject) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        Tokeniser tokeniser = new Tokeniser(this.jsonString);
+        ObjectBuilder builder = new ObjectBuilder(tokeniser.getTokens(),mapperObject);
 
-        return m;
+        mapperObject = (MapperClass) builder.build();
+
+        return mapperObject;
     }
 }

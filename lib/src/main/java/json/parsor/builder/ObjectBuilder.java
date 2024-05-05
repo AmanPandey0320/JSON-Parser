@@ -138,7 +138,6 @@ public class ObjectBuilder {
                 method.invoke(obj,fieldValue.getTokenValue().toString().equals("true"));
             }else{
                 // string
-                System.out.println(fieldKey);
                 method = clazz.getMethod(setterMethodName,String.class);
                 method.setAccessible(true);
                 method.invoke(obj,fieldValue.getTokenValue().toString());

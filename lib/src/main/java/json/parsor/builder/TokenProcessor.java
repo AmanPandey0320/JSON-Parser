@@ -90,8 +90,6 @@ public class TokenProcessor {
 
         }
 
-        System.out.println(key+"->"+idx+1);
-
         this.arrayLengthMap.put(key,idx+1);
 
 
