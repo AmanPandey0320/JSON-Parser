@@ -12,14 +12,21 @@ import java.util.*;
 * */
 public class TokenProcessor {
     private HashMap<String,Token> objectHashMap;
+    private HashMap<String, Integer> arrayLengthMap;
     private ArrayList<Token> tokens;
     private LinkedList<String> keyStack;
     private int currToken;
     private int numberOfTokens;
 
+
+    public HashMap<String, Integer> getArrayLengthMap() {
+        return arrayLengthMap;
+    }
+
     public TokenProcessor(ArrayList<Token> tokens) {
         this.tokens = tokens;
         this.objectHashMap = new HashMap<>();
+        this.arrayLengthMap = new HashMap<>();
         this.keyStack = new LinkedList<>();
         this.currToken = 0;
         this.numberOfTokens = tokens.size();
@@ -78,10 +85,15 @@ public class TokenProcessor {
                     this.nextToken();
                 }
             }else{
-                return;
+                break;
             }
 
         }
+
+        System.out.println(key+"->"+idx+1);
+
+        this.arrayLengthMap.put(key,idx+1);
+
 
     }
 

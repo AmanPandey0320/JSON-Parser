@@ -48,18 +48,21 @@ public class ObjectBuilder {
     private ArrayList<Object> buildArray(
             Field field,
             String fieldKey,
-            HashMap<String,Token> keyTokenMap
-    ) throws BuilderException {
+            HashMap<String,Token> keyTokenMap,
+            HashMap<String,Integer> arrayLengthMap
+    ) throws BuilderException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         ArrayList<Object> arr = new ArrayList<>();
         if(!field.isAnnotationPresent(JsonProperty.class)){
             throw new BuilderException("Required annotation of type JsonProperty");
         }
 
         Class<?> clazz = field.getAnnotation(JsonProperty.class).nest();
+        int idx = 0;
+        int arrSize = arrayLengthMap.get(fieldKey);
 
         if (clazz.equals(String.class) || clazz.equals(Integer.class) || clazz.equals(Boolean.class)) {
-            int idx = 0;
-            while(true){
+
+            while(idx < arrSize){
                 String key = fieldKey+".@["+ idx +']';
 
                 if(!keyTokenMap.containsKey(key)){
@@ -70,7 +73,13 @@ public class ObjectBuilder {
                 idx++;
             }
         }else{
-
+            //its object
+            while(idx < arrSize){
+                String key = fieldKey+".@["+ idx +']';
+                Object arrElement = this.buildObject(key,clazz,keyTokenMap,arrayLengthMap);
+                arr.add(arrElement);
+                idx++;
+            }
         }
 
         return arr;
@@ -80,7 +89,8 @@ public class ObjectBuilder {
     private Object buildObject(
             String parKey,
             Class<?> clazz,
-            HashMap<String,Token> keyTokenMap
+            HashMap<String,Token> keyTokenMap,
+            HashMap<String,Integer> arrayLengthMap
     ) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
 
         Constructor<?> constructor = clazz.getConstructor();
@@ -91,12 +101,8 @@ public class ObjectBuilder {
         for(Map.Entry<Field,String> entry:fieldTokey.entrySet()){
             Field field = entry.getKey();
             String fieldKey = entry.getValue();
-            Token fieldValue = keyTokenMap.get(parKey+fieldKey);
-
-
-
-
-
+            String realKey = parKey.isEmpty()?fieldKey:parKey+"."+fieldKey;
+            Token fieldValue = keyTokenMap.get(realKey);
             FieldType fieldType = this.getFieldType(field);
 
             String setterMethodName = fieldToSetter.get(field.getName());
@@ -106,7 +112,7 @@ public class ObjectBuilder {
                 // destructure Array
                 method = clazz.getMethod(setterMethodName,ArrayList.class);
                 method.setAccessible(true);
-                method.invoke(obj,this.buildArray(field,fieldKey,keyTokenMap));
+                method.invoke(obj,this.buildArray(field,realKey,keyTokenMap,arrayLengthMap));
 
             }else if(fieldType == FieldType.Object){
                 //destructure object
@@ -114,9 +120,10 @@ public class ObjectBuilder {
                 method = clazz.getMethod(setterMethodName,nestClazz);
                 method.setAccessible(true);
                 Object nestObj = this.buildObject(
-                        parKey+fieldKey+".",
+                        realKey,
                         nestClazz,
-                        keyTokenMap
+                        keyTokenMap,
+                        arrayLengthMap
                 );
                 method.invoke(obj,nestObj);
             }else if(fieldType == FieldType.Number){
@@ -131,6 +138,7 @@ public class ObjectBuilder {
                 method.invoke(obj,fieldValue.getTokenValue().toString().equals("true"));
             }else{
                 // string
+                System.out.println(fieldKey);
                 method = clazz.getMethod(setterMethodName,String.class);
                 method.setAccessible(true);
                 method.invoke(obj,fieldValue.getTokenValue().toString());
@@ -157,8 +165,7 @@ public class ObjectBuilder {
         }
 
         HashMap<String,Token> keyTokenMap;
-        HashMap<Field,String> fieldToken;
-        HashMap<String,String> fieldToSetter;
+        HashMap<String,Integer> arrayLengthMap;
         TokenProcessor processor = new TokenProcessor(tokens);
 
 
@@ -166,10 +173,11 @@ public class ObjectBuilder {
         // init
         processor.init();
         keyTokenMap = processor.getObjectHashMap();
+        arrayLengthMap = processor.getArrayLengthMap();
 
 
 
-        return this.buildObject("",clazz,keyTokenMap);
+        return this.buildObject("",clazz,keyTokenMap,arrayLengthMap);
     }
 
 

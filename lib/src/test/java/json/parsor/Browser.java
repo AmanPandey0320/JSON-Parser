@@ -15,7 +15,7 @@ public class Browser {
     @JsonProperty(name = "browsers.firefox.pref_url")
     private String browserPrefUrl;
 
-    @JsonProperty(type = Type.ARRAY, nest = Release.class)
+    @JsonProperty(type = Type.ARRAY, nest = Release.class,name = "browsers.firefox.releases")
     private ArrayList<Release> releases;
 
     public String getBrowserName() {
