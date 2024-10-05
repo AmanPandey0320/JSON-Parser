@@ -1,4 +1,4 @@
-package json.parsor.tokeniser;
+package json.parsor;
 
 public class TokenConstants {
     public final static String UNEXPECTED_EOF_EXCEPTION = "Unexpected end of file";

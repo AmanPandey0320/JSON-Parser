@@ -1,8 +1,8 @@
 package json;
 
-import json.parsor.annotation.JsonClass;
-import json.parsor.annotation.JsonProperty;
-import json.parsor.annotation.Type;
+import json.annotation.JsonClass;
+import json.annotation.JsonProperty;
+import json.annotation.Type;
 
 @JsonClass
 public class Education {

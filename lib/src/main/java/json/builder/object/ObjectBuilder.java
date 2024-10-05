@@ -1,11 +1,12 @@
 package json.builder.object;
 
 import json.builder.FieldType;
-import json.parsor.annotation.JsonClass;
-import json.parsor.annotation.JsonProperty;
+import json.annotation.JsonClass;
+import json.annotation.JsonProperty;
 import json.exception.AnnotationException;
 import json.exception.BuilderException;
-import json.parsor.tokeniser.Token;
+import json.parsor.Token;
+import json.util.PreProcessor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

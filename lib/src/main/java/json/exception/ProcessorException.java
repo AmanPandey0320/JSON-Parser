@@ -1,6 +1,6 @@
 package json.exception;
 
-import json.parsor.tokeniser.Token;
+import json.parsor.Token;
 
 public class ProcessorException extends Error{
     private Token token;

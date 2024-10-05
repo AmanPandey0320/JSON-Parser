@@ -1,6 +1,6 @@
 package json.util;
 
-import json.parsor.tokeniser.JsonTokens;
+import json.parsor.JsonTokens;
 
 public class TokenUtil {
     public static boolean isDigit(char ch){

@@ -1,4 +1,4 @@
-package json.parsor.annotation;
+package json.annotation;
 
 public enum Type {
     STRING,

@@ -1,8 +1,8 @@
 package json.builder.object;
 
 import json.exception.ProcessorException;
-import json.parsor.tokeniser.Token;
-import json.parsor.tokeniser.TokenType;
+import json.parsor.Token;
+import json.parsor.TokenType;
 
 import java.util.*;
 

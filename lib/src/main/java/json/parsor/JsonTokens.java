@@ -1,4 +1,4 @@
-package json.parsor.tokeniser;
+package json.parsor;
 
 public class JsonTokens {
     public final static char DOUBLE_QUOTE = '\"';

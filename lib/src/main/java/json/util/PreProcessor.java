@@ -1,7 +1,7 @@
-package json.builder.object;
+package json.util;
 
-import json.parsor.annotation.JsonProperty;
-import json.parsor.annotation.Type;
+import json.annotation.JsonProperty;
+import json.annotation.Type;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

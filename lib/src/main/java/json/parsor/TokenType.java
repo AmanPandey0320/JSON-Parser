@@ -1,4 +1,4 @@
-package json.parsor.tokeniser;
+package json.parsor;
 
 public enum TokenType {
     CURLY_BRACKET_OPEN,

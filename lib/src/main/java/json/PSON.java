@@ -4,7 +4,7 @@
 package json;
 
 import json.builder.object.ObjectBuilder;
-import json.parsor.tokeniser.Tokeniser;
+import json.parsor.Tokeniser;
 
 import java.lang.reflect.InvocationTargetException;
 
