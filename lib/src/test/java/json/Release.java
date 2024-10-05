@@ -1,4 +1,4 @@
-package json.parsor;
+package json;
 
 import json.parsor.annotation.JsonClass;
 import json.parsor.annotation.JsonProperty;

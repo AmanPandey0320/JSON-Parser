@@ -2,8 +2,8 @@ package json.parsor.tokeniser;
 
 import java.util.ArrayList;
 
-import json.parsor.exception.TokenException;
-import json.parsor.util.TokenUtil;
+import json.exception.TokenException;
+import json.util.TokenUtil;
 
 
 /*

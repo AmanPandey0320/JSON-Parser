@@ -1,9 +1,10 @@
-package json.parsor.builder;
+package json.builder.object;
 
+import json.builder.FieldType;
 import json.parsor.annotation.JsonClass;
 import json.parsor.annotation.JsonProperty;
-import json.parsor.exception.AnnotationException;
-import json.parsor.exception.BuilderException;
+import json.exception.AnnotationException;
+import json.exception.BuilderException;
 import json.parsor.tokeniser.Token;
 
 import java.lang.reflect.Constructor;

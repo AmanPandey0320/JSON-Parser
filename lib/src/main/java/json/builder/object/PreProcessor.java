@@ -1,4 +1,4 @@
-package json.parsor.builder;
+package json.builder.object;
 
 import json.parsor.annotation.JsonProperty;
 import json.parsor.annotation.Type;

@@ -1,6 +1,6 @@
-package json.parsor.builder;
+package json.builder.object;
 
-import json.parsor.exception.ProcessorException;
+import json.exception.ProcessorException;
 import json.parsor.tokeniser.Token;
 import json.parsor.tokeniser.TokenType;
 

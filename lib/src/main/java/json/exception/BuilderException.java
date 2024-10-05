@@ -1,4 +1,4 @@
-package json.parsor.exception;
+package json.exception;
 
 public class BuilderException extends Error {
     private String message;

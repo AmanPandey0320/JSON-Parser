@@ -1,4 +1,4 @@
-package json.parsor.exception;
+package json.exception;
 
 public class AnnotationException extends Error{
     private String className;

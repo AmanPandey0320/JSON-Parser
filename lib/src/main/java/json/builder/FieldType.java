@@ -1,4 +1,4 @@
-package json.parsor.builder;
+package json.builder;
 
 public enum FieldType {
     String,

@@ -1,4 +1,4 @@
-package json.parsor.exception;
+package json.exception;
 
 import json.parsor.tokeniser.Token;
 

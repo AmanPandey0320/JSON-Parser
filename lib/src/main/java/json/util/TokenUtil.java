@@ -1,4 +1,4 @@
-package json.parsor.util;
+package json.util;
 
 import json.parsor.tokeniser.JsonTokens;
 
