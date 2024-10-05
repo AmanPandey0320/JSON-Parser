@@ -14,14 +14,14 @@ import java.util.HashMap;
 public class LibraryTest {
     @Test public void basicTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
         String jsonString = "{\"name\":\"Aman\",\"age\":24,\"isEducated\":false,\"hobbies\":[\"cricket\",\"badminton\",\"guitar\",\"movies\"],\"class10\":{\"isPassed\":true,\"year\":2016,\"board\":\"CBSE\"},\"class12\":{\"isPassed\":true,\"year\":2018,\"board\":\"CBSE\"},\"UG\":{\"isPassed\":true,\"year\":2023,\"board\":\"NITJSR\"}}";
-        PSON pson = new PSON<Person>(jsonString);
+        PSON pson = new PSON<Person>();
         Person person = new Person();
         System.out.println("\n\n---------------- TEST CASE 1 --------------------\n\n");
 
-        person = (Person) pson.parseIntoObject(person);
+        person = (Person) pson.parseIntoObject(jsonString,person);
 
 
-        System.out.println(person);
+        System.out.println(person.getPname());
 
     }
 
@@ -29,9 +29,9 @@ public class LibraryTest {
     @Test public void builderTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
 
         String jsonString = "{\"browsers\":{\"firefox\":{\"name\":\"Firefox\",\"pref_url\":\"about:config\",\"releases\":[{\"release_date\":\"2004-11-09\",\"status\":\"retired\",\"engine\":\"Gecko\",\"engine_version\":\"1.7\",\"tags\":[\"json\",\"parser\"],\"isGa\":true}]}}}";
-        PSON pson = new PSON<Browser>(jsonString);
+        PSON pson = new PSON<Browser>();
 
-        System.out.println("\n\n---------------- TEST CASE 3 --------------------\n\n");
+        System.out.println("\n\n---------------- TEST CASE 2 --------------------\n\n");
 
         Tokeniser tokeniser = new Tokeniser(jsonString);
         Browser browser = new Browser();

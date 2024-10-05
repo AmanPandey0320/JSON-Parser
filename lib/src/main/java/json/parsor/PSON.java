@@ -11,24 +11,17 @@ import java.lang.reflect.InvocationTargetException;
 
 public class PSON<MapperClass> {
 
-    private String jsonString;
-
-
-    public PSON(String jsonString){
-        this.jsonString = jsonString;
-
-    }
-    public String stringify(Object obj){
-        return "";
-    }
-
     @SuppressWarnings("unchecked")
-    public Object parseIntoObject(MapperClass mapperObject) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        Tokeniser tokeniser = new Tokeniser(this.jsonString);
+    public Object parseIntoObject(String jsonString, MapperClass mapperObject) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        Tokeniser tokeniser = new Tokeniser(jsonString);
         ObjectBuilder builder = new ObjectBuilder(tokeniser.getTokens(),mapperObject);
 
         mapperObject = (MapperClass) builder.build();
 
         return mapperObject;
+    }
+
+    public String stringify(MapperClass mapperObject){
+        return "";
     }
 }

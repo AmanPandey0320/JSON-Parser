@@ -13,12 +13,12 @@ import json.parsor.util.TokenUtil;
 * */
 public class Tokeniser {
 
-    private String jsonString;
+    private final String jsonString;
     private int index;
     private int lineNumber;
     private int columnNumber;
-    private int jsonStringLength;
-    private ArrayList<Token> tokens;
+    private final int jsonStringLength;
+    private final ArrayList<Token> tokens;
 
     public String getJsonString() {
         return jsonString;
