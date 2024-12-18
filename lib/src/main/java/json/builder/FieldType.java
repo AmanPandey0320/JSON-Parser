@@ -1,9 +1,9 @@
 package json.builder;
 
 public enum FieldType {
-    String,
-    Number,
-    Boolean,
-    Array,
-    Object
+    STRING,
+    NUMBER,
+    BOOLEAN,
+    ARRAY,
+    OBJECT
 }

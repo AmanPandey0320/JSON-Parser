@@ -39,11 +39,11 @@ public class ObjectBuilder {
         }
 
         return switch (field.getAnnotation(JsonProperty.class).type()) {
-            case ARRAY -> FieldType.Array;
-            case OBJECT -> FieldType.Object;
-            case BOOLEAN -> FieldType.Boolean;
-            case NUMBER -> FieldType.Number;
-            default ->  FieldType.String;
+            case ARRAY -> FieldType.ARRAY;
+            case OBJECT -> FieldType.OBJECT;
+            case BOOLEAN -> FieldType.BOOLEAN;
+            case NUMBER -> FieldType.NUMBER;
+            default ->  FieldType.STRING;
         };
     }
 
@@ -97,7 +97,7 @@ public class ObjectBuilder {
 
         Constructor<?> constructor = clazz.getConstructor();
         Object obj = constructor.newInstance(new Object[]{});
-        HashMap<String,String> fieldToSetter = PreProcessor.mapFieldToSetter(obj);
+        HashMap<String,String> fieldToSetter = PreProcessor.mapFieldToFunction(obj,"set");
         HashMap<Field,String> fieldTokey = PreProcessor.mapFieldToKey(obj);
 
         for(Map.Entry<Field,String> entry:fieldTokey.entrySet()){
@@ -105,18 +105,18 @@ public class ObjectBuilder {
             String fieldKey = entry.getValue();
             String realKey = parKey.isEmpty()?fieldKey:parKey+"."+fieldKey;
             Token fieldValue = keyTokenMap.get(realKey);
-            FieldType fieldType = this.getFieldType(field);
+            FieldType fieldType = PreProcessor.getFieldType(field);
 
             String setterMethodName = fieldToSetter.get(field.getName());
             Method method = null;
 
-            if(fieldType == FieldType.Array){
+            if(fieldType == FieldType.ARRAY){
                 // destructure Array
                 method = clazz.getMethod(setterMethodName,ArrayList.class);
                 method.setAccessible(true);
                 method.invoke(obj,this.buildArray(field,realKey,keyTokenMap,arrayLengthMap));
 
-            }else if(fieldType == FieldType.Object){
+            }else if(fieldType == FieldType.OBJECT){
                 //destructure object
                 Class<?> nestClazz = field.getAnnotation(JsonProperty.class).nest();
                 method = clazz.getMethod(setterMethodName,nestClazz);
@@ -128,12 +128,12 @@ public class ObjectBuilder {
                         arrayLengthMap
                 );
                 method.invoke(obj,nestObj);
-            }else if(fieldType == FieldType.Number){
+            }else if(fieldType == FieldType.NUMBER){
                 // destructure number
                 method = clazz.getMethod(setterMethodName,Integer.class);
                 method.setAccessible(true);
                 method.invoke(obj,Integer.parseInt(fieldValue.getTokenValue().toString()));
-            }else if(fieldType == FieldType.Boolean){
+            }else if(fieldType == FieldType.BOOLEAN){
                 // boolean
                 method = clazz.getMethod(setterMethodName,Boolean.class);
                 method.setAccessible(true);

@@ -4,10 +4,12 @@
 package json;
 
 import json.builder.object.ObjectBuilder;
+import json.builder.string.StringBuilder;
 import json.parsor.Tokeniser;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 public class LibraryTest {
     @Test public void basicTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
@@ -38,6 +40,33 @@ public class LibraryTest {
 
         System.out.println(browser.getReleases().get(0).getTags().toString());
 
+    }
+
+    @Test public void stringMapperTest(){
+        Education education = new Education();
+        Person person = new Person();
+
+        education.setBoard("CBSE");
+        education.setYear(2018);
+        education.setIsPassed(true);
+
+
+
+        // Set values for the fields using setters
+        person.setPname("John Doe");
+        person.setAge(30);
+        person.setIsEducated(true);
+
+        // Create and set hobbies list
+        ArrayList<String> hobbies = new ArrayList<>();
+        hobbies.add("Reading");
+        hobbies.add("Swimming");
+        hobbies.add("Traveling");
+        person.setHobbies(hobbies);
+
+        person.setEdu(education);
+
+        StringBuilder.build(person);
     }
 }
 
